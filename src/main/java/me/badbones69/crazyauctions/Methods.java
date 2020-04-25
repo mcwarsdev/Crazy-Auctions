@@ -181,20 +181,20 @@ public class Methods {
     
     @SuppressWarnings("deprecation")
     public static ItemStack getItemInHand(Player player) {
-        if (getVersion() >= 191) {
-            return player.getInventory().getItemInMainHand();
-        } else {
+//        if (getVersion() >= 191) {
+//            return player.getInventory().getItemInMainHand();
+//        } else {
             return player.getItemInHand();
-        }
+//        }
     }
     
     @SuppressWarnings("deprecation")
     public static void setItemInHand(Player player, ItemStack item) {
-        if (getVersion() >= 191) {
-            player.getInventory().setItemInMainHand(item);
-        } else {
+//        if (getVersion() >= 191) {
+//            player.getInventory().setItemInMainHand(item);
+//        } else {
             player.setItemInHand(item);
-        }
+//        }
     }
     
     public static boolean isInt(String s) {
