@@ -1,8 +1,10 @@
 package me.badbones69.crazyauctions;
 
+import com.massivecraft.massivecore.MassivePlugin;
 import me.badbones69.crazyauctions.api.*;
 import me.badbones69.crazyauctions.api.FileManager.Files;
 import me.badbones69.crazyauctions.api.events.AuctionListEvent;
+import me.badbones69.crazyauctions.cmd.AuctionAdminCommand;
 import me.badbones69.crazyauctions.controllers.GUI;
 import me.badbones69.crazyauctions.controllers.Metrics;
 import me.badbones69.crazyauctions.currency.Vault;
@@ -23,24 +25,43 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-public class Main extends JavaPlugin implements Listener {
-    
+public class Main extends MassivePlugin implements Listener {
+
+    private static Main instance;
+    public static Main get() { return instance; }
+
+    public Main() {
+        instance = this;
+    }
+
     public static FileManager fileManager = FileManager.getInstance();
     public static CrazyAuctions crazyAuctions = CrazyAuctions.getInstance();
-    
+
     @Override
-    public void onEnable() {
+    public void onEnableInner() {
         fileManager.logInfo(true).setup(this);
         crazyAuctions.loadCrazyAuctions();
-        Bukkit.getServer().getPluginManager().registerEvents(this, this);
+
         Bukkit.getServer().getPluginManager().registerEvents(new GUI(), this);
+
+        this.activate(
+                AuctionAdminCommand.class
+        );
+    }
+
+    @Override
+    public void onEnablePost() {
         Methods.updateAuction();
         startCheck();
+
         if (!Vault.setupEconomy()) {
             saveDefaultConfig();
         }
+
         Messages.addMissingMessages();
         new Metrics(this); //Starts up bStats
+
+        super.onEnablePost();
     }
     
     @Override
@@ -48,6 +69,8 @@ public class Main extends JavaPlugin implements Listener {
         int file = 0;
         Bukkit.getScheduler().cancelTask(file);
         Files.DATA.saveFile();
+
+        super.onDisable();
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String commandLable, String[] args) {
@@ -364,19 +387,6 @@ public class Main extends JavaPlugin implements Listener {
         return false;
     }
     
-    @EventHandler
-    public void onJoin(PlayerJoinEvent e) {
-        final Player player = e.getPlayer();
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (player.getName().equals("BadBones69")) {
-                    player.sendMessage(Methods.getPrefix() + Methods.color("&7This server is running your Crazy Auctions Plugin. " + "&7It is running version &av" + Bukkit.getServer().getPluginManager().getPlugin("CrazyAuctions").getDescription().getVersion() + "&7."));
-                }
-            }
-        }.runTaskLater(this, 40);
-    }
-    
     private void startCheck() {
         new BukkitRunnable() {
             @Override
@@ -422,6 +432,7 @@ public class Main extends JavaPlugin implements Listener {
             ma.add(Material.matchMaterial("WOOD_HOE"));
             ma.add(Material.matchMaterial("GOLD_HOE"));
         }
+
         ma.add(Material.DIAMOND_HELMET);
         ma.add(Material.DIAMOND_CHESTPLATE);
         ma.add(Material.DIAMOND_LEGGINGS);

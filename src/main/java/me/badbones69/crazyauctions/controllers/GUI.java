@@ -8,7 +8,9 @@ import me.badbones69.crazyauctions.api.events.AuctionBuyEvent;
 import me.badbones69.crazyauctions.api.events.AuctionCancelledEvent;
 import me.badbones69.crazyauctions.api.events.AuctionNewBidEvent;
 import me.badbones69.crazyauctions.currency.CurrencyManager;
+import me.badbones69.crazyauctions.database.AuctionSellDatabase;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -777,9 +779,11 @@ public class GUI implements Listener {
                                         return;
                                     }
                                     ItemStack i = data.getItemStack("Items." + ID + ".Item");
+                                    OfflinePlayer sellerOfflinePlayer = Methods.getOfflinePlayer(seller);
+
                                     Bukkit.getPluginManager().callEvent(new AuctionBuyEvent(player, i, cost));
                                     CurrencyManager.removeMoney(player, cost);
-                                    CurrencyManager.addMoney(Methods.getOfflinePlayer(seller), cost);
+                                    CurrencyManager.addMoney(sellerOfflinePlayer, cost);
                                     HashMap<String, String> placeholders = new HashMap<>();
                                     placeholders.put("%Price%", Methods.getPrice(ID, false));
                                     placeholders.put("%price%", Methods.getPrice(ID, false));
@@ -795,6 +799,8 @@ public class GUI implements Listener {
                                     Files.DATA.saveFile();
                                     playClick(player);
                                     openShop(player, shopType.get(player), shopCategory.get(player), 1);
+
+                                    AuctionSellDatabase.get().addAuctionLog(new AuctionSellDatabase.LogEntry(sellerOfflinePlayer.getUniqueId(), player.getUniqueId(), i.clone(), cost, System.currentTimeMillis()));
                                     return;
                                 }
                                 if (item.getItemMeta().getDisplayName().equals(Methods.color(config.getString("Settings.GUISettings.OtherSettings.Cancel.Name")))) {
