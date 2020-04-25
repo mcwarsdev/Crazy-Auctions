@@ -125,7 +125,7 @@ public class AuctionSellDatabase extends SQLite {
         try {
             PreparedStatement preparedStatement = getConnection().prepareStatement(getPushRow(id));
 
-            preparedStatement.setString(1, id);
+            preparedStatement.setString(1, logEntry.getSellerUUID().toString());
             preparedStatement.setLong(2, logEntry.getSoldMs());
             preparedStatement.setLong(3, logEntry.getPrice());
             preparedStatement.setString(4, logEntry.getPurchaserUUID().toString());

@@ -8,8 +8,11 @@ import com.massivecraft.massivecore.command.requirement.RequirementIsPlayer;
 import com.massivecraft.massivecore.mson.Mson;
 import com.massivecraft.massivecore.pager.Msonifier;
 import com.massivecraft.massivecore.pager.Pager;
+import com.massivecraft.massivecore.util.MUtil;
 import com.massivecraft.massivecore.util.NumberUtil;
 import com.massivecraft.massivecore.util.Txt;
+import com.massivecraft.massivecore.util.time.TimeUnit;
+import com.massivecraft.massivecore.util.time.TimeUtil;
 import me.badbones69.crazyauctions.cmd.type.TypeOfflinePlayer;
 import me.badbones69.crazyauctions.database.AuctionSellDatabase;
 import org.bukkit.Bukkit;
@@ -18,7 +21,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class AuctionAdminLogCmd extends MassiveCommand {
 
@@ -42,6 +47,8 @@ public class AuctionAdminLogCmd extends MassiveCommand {
 
             Collections.reverse(logEntries);
 
+            long currentMs = System.currentTimeMillis();
+
             Pager<AuctionSellDatabase.LogEntry> pager = new Pager<>(this, "Auction Logs", page, logEntries, (Msonifier<AuctionSellDatabase.LogEntry>) (logEntry, index) -> {
                 StringBuilder stringBuilder = new StringBuilder();
                 OfflinePlayer sellerPlayer = Bukkit.getOfflinePlayer(logEntry.getSellerUUID());
@@ -56,7 +63,16 @@ public class AuctionAdminLogCmd extends MassiveCommand {
                 stringBuilder.append(ChatColor.WHITE).append(" for ");
                 stringBuilder.append(ChatColor.GREEN).append("$").append(NumberUtil.format(logEntry.getPrice()));
 
-                return Mson.mson(stringBuilder.toString()).item(itemStack).command(AuctionAdminReturnCmd.get(), offlinePlayer.getName(), ""+logEntry.getSoldMs(), sender.getName());
+                List<String> tooltip = MUtil.list(
+                        "&eSoldMs: &f" + logEntry.getSoldMs(),
+                        "&eTime: &f" + TimeUtil.getFormattedTime(TimeUnit.MILLISECONDS, (currentMs - logEntry.getSoldMs()), null, true) + " ago",
+                        " ",
+                        "&7Click to give yourself the item."
+                );
+
+                return Mson.mson(stringBuilder.toString())
+                        .tooltip(Txt.colorize(tooltip))
+                        .command(AuctionAdminReturnCmd.get(), offlinePlayer.getName(), ""+logEntry.getSoldMs(), sender.getName());
             });
 
             pager.message();

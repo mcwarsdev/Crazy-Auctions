@@ -40,7 +40,7 @@ public class AuctionAdminReturnCmd extends MassiveCommand {
                 return;
             }
 
-            MixinMessage.get().msgOne(commandSender, "&6&lAUCTION HOUSE &8» &eYou have just reimbursed the items to &6%s&e.");
+            MixinMessage.get().msgOne(commandSender, "&6&lAUCTION HOUSE &8» &eYou have just reimbursed the items to &6%s&e.", player.getName());
             InventoryUtil.giveItemStack(player, logEntry.getItem());
         });
     }

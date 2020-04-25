@@ -8,6 +8,7 @@ import me.badbones69.crazyauctions.cmd.AuctionAdminCommand;
 import me.badbones69.crazyauctions.controllers.GUI;
 import me.badbones69.crazyauctions.controllers.Metrics;
 import me.badbones69.crazyauctions.currency.Vault;
+import me.badbones69.crazyauctions.database.AuctionSellDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -45,6 +46,7 @@ public class Main extends MassivePlugin implements Listener {
         Bukkit.getServer().getPluginManager().registerEvents(new GUI(), this);
 
         this.activate(
+                AuctionSellDatabase.class,
                 AuctionAdminCommand.class
         );
     }
